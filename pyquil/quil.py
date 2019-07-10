@@ -33,7 +33,8 @@ from pyquil.quilatom import (LabelPlaceholder, MemoryReference, QubitPlaceholder
 from pyquil.gates import MEASURE, H, RESET
 from pyquil.quilbase import (DefGate, Gate, Measurement, Pragma, AbstractInstruction, Qubit,
                              Jump, Label, JumpConditional, JumpTarget, JumpUnless, JumpWhen,
-                             Declare, Halt, Reset, ResetQubit, DefPermutationGate)
+                             Declare, Halt, Reset, ResetQubit, DefPermutationGate,
+                             DefCalibration, DefMeasureCalibration)
 
 
 class Program(object):
@@ -47,6 +48,7 @@ class Program(object):
     """
     def __init__(self, *instructions):
         self._defined_gates = []
+        self.calibrations = list()
         # Implementation note: the key difference between the private _instructions and
         # the public instructions property below is that the private _instructions list
         # may contain placeholder labels.
@@ -76,6 +78,7 @@ class Program(object):
         :return: a new Program
         """
         new_prog = Program()
+        new_prog.calibrations = self.calibrations.copy()
         new_prog._defined_gates = self._defined_gates.copy()
         if self.native_quil_metadata is not None:
             new_prog.native_quil_metadata = self.native_quil_metadata.copy()
@@ -180,6 +183,8 @@ class Program(object):
                                   .format(instruction.name))
 
                 self._defined_gates.append(instruction)
+            elif isinstance(instruction, DefCalibration) or isinstance(instruction, DefMeasureCalibration):
+                self.calibrations.append(instruction)
             elif isinstance(instruction, AbstractInstruction):
                 self._instructions.append(instruction)
                 self._synthesized_instructions = None
