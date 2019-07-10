@@ -429,19 +429,19 @@ class PyQuilListener(QuilListener):
         self.result.append(DefWaveform(name, parameters, entries))
 
     def exitPulse(self, ctx:QuilParser.PulseContext):
-        qubits = map(_formal_qubit, ctx.formalQubit())
+        qubits = list(map(_formal_qubit, ctx.formalQubit()))
         frame = ctx.frame().getText()
         waveform = _waveform(ctx.waveform())
         self.result.append(Pulse(qubits, frame, waveform))
 
     def exitSetFrequency(self, ctx:QuilParser.SetFrequencyContext):
-        qubits = map(_formal_qubit, ctx.formalQubit())
+        qubits = list(map(_formal_qubit, ctx.formalQubit()))
         frame = ctx.frame().getText()
         freq = _expression(ctx.expression())
         self.result.append(SetFrequency(qubits, frame, freq))
 
     def exitSetPhase(self, ctx:QuilParser.SetPhaseContext):
-        qubits = map(_formal_qubit, ctx.formalQubit())
+        qubits = list(map(_formal_qubit, ctx.formalQubit()))
         frame = ctx.frame().getText()
         phase = _expression(ctx.expression())
         self.result.append(SetPhase(qubits, frame, phase))
@@ -461,7 +461,7 @@ class PyQuilListener(QuilListener):
                                       all_qubits[qubit_count/2:], frameB))
 
     def exitSetScale(self, ctx:QuilParser.SetScaleContext):
-        qubits = map(_formal_qubit, ctx.formalQubit())
+        qubits = list(map(_formal_qubit, ctx.formalQubit()))
         frame = ctx.frame().getText()
         scale = _expression(ctx.expression())
         self.result.append(SetScale(qubits, frame, scale))
@@ -486,7 +486,7 @@ class PyQuilListener(QuilListener):
         self.result.append(Delay(qubit, duration))
 
     def exitFence(self, ctx:QuilParser.FenceContext):
-        qubits = map(_formal_qubit, ctx.formalQubit())
+        qubits = list(map(_formal_qubit, ctx.formalQubit()))
         self.result.append(Fence(qubits))
 
 
