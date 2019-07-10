@@ -479,6 +479,7 @@ class Program(object):
         """
         return '\n'.join(itertools.chain(
             (dg.out() for dg in self._defined_gates),
+            (cal.out() for cal in self.calibrations),
             (instr.out(allow_placeholders=allow_placeholders) for instr in self.instructions),
             [''],
         ))
@@ -489,6 +490,7 @@ class Program(object):
         """
         return '\n'.join(itertools.chain(
             (dg.out() for dg in self._defined_gates),
+            (cal.out() for cal in self.calibrations),
             (instr.out() for instr in self.instructions),
             [''],
         ))
@@ -657,6 +659,7 @@ class Program(object):
         """
         return '\n'.join(itertools.chain(
             (str(dg) for dg in self._defined_gates),
+            (str(cal) for cal in self.calibrations),
             (str(instr) for instr in self.instructions),
             [''],
         ))
