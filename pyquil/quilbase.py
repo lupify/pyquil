@@ -950,7 +950,7 @@ class Pulse(AbstractInstruction):
         ret = "PULSE "
         for qubit in self.qubits:
             ret += f"{qubit} "
-        ret += f'{self.frame} {self.waveform.out()}'
+        ret += f'"{self.frame}" {self.waveform.out()}'
         return ret
 
 
@@ -964,7 +964,7 @@ class SetFrequency(AbstractInstruction):
         ret = "SET-FREQUENCY"
         for q in self.qubits:
             ret += f" {q}"
-        return ret + f" {self.frame} {self.freq}"
+        return ret + f' "{self.frame}" {self.freq}'
 
 
 class SetPhase(AbstractInstruction):
@@ -990,7 +990,7 @@ class ShiftPhase(AbstractInstruction):
         ret = "SHIFT-PHASE "
         for qubit in self.qubits:
             ret += f"{qubit} "
-        return ret + f"{self.frame} {self.phase}"
+        return ret + f'"{self.frame}" {self.phase}'
 
 
 class SwapPhases(AbstractInstruction):
@@ -1004,10 +1004,10 @@ class SwapPhases(AbstractInstruction):
         ret = "SWAP-PHASES"
         for q in self.qubitsA:
             ret += f" {q}"
-        ret += f" {self.frameA}"
+        ret += f' "{self.frameA}"'
         for q in self.qubitsB:
             ret += f" {q}"
-        return ret + f" {self.frameB}"
+        return ret + f' "{self.frameB}"'
 
 
 class SetScale(AbstractInstruction):
@@ -1020,7 +1020,7 @@ class SetScale(AbstractInstruction):
         ret = "SET-SCALE"
         for q in self.qubits:
             ret += f" {q}"
-        return ret + f" {self.frame} {self.scale}"
+        return ret + f' "{self.frame}" {self.scale}'
 
 
 class Capture(AbstractInstruction):
@@ -1031,7 +1031,7 @@ class Capture(AbstractInstruction):
         self.memory_region = memory_region
 
     def out(self):
-        return f"CAPTURE {self.qubit} {self.frame} {self.waveform.out()} {self.memory_region.out()}"
+        return f'CAPTURE {self.qubit} "{self.frame}" {self.waveform.out()} {self.memory_region.out()}'
 
 
 class RawCapture(AbstractInstruction):
@@ -1042,7 +1042,7 @@ class RawCapture(AbstractInstruction):
         self.memory_region = memory_region
 
     def out(self):
-        return f"CAPTURE {self.qubit} {self.frame} {self.duration} {self.memory_region.out()}"
+        return f'CAPTURE {self.qubit} "{self.frame}" {self.duration} {self.memory_region.out()}'
 
 
 class Delay(AbstractInstruction):
