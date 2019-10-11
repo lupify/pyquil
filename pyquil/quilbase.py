@@ -49,20 +49,23 @@ class AbstractInstruction(object):
         return hash(self.out())
 
 
-RESERVED_WORDS: Container[str] = [
-    'DEFGATE', 'DEFCIRCUIT', 'MEASURE',
-    'LABEL', 'HALT', 'JUMP', 'JUMP-WHEN', 'JUMP-UNLESS',
-    'RESET', 'WAIT', 'NOP', 'INCLUDE', 'PRAGMA',
-    'DECLARE',
-    'NEG', 'NOT', 'AND', 'IOR', 'XOR',
-    'MOVE', 'EXCHANGE', 'CONVERT',
-    'ADD', 'SUB', 'MUL', 'DIV',
-    'EQ', 'GT', 'GE', 'LT', 'LE',
-    'LOAD', 'STORE',
-    # to be removed:
-    'TRUE', 'FALSE', 'OR'
-]
-
+RESERVED_WORDS = ['DEFGATE', 'DEFCIRCUIT', 'MEASURE',
+                  'LABEL', 'HALT', 'JUMP', 'JUMP-WHEN', 'JUMP-UNLESS',
+                  'RESET', 'WAIT', 'NOP', 'INCLUDE', 'PRAGMA',
+                  'DECLARE',
+                  'NEG', 'NOT', 'AND', 'IOR', 'XOR',
+                  'MOVE', 'EXCHANGE', 'CONVERT',
+                  'ADD', 'SUB', 'MUL', 'DIV',
+                  'EQ', 'GT', 'GE', 'LT', 'LE',
+                  'LOAD', 'STORE',
+                  # Quilt additions:
+                  'DEFCAL', 'DEFFRAME', 'DEFWAVEFORM',
+                  'PULSE', 'CAPTURE', 'RAW-CAPTURE', 'DELAY', 'FENCE',
+                  'SET-FREQUENCY', 'SET-PHASE', 'SHIFT-PHASE', 'SWAP-PHASES', 'SET-SCALE',
+                  'SAMPLE-RATE', 'INITIAL-FREQUENCY',
+                  # to be removed:
+                  'TRUE', 'FALSE', 'OR'
+                  ]
 
 def _extract_qubit_index(qubit: Union[Qubit, QubitPlaceholder], index: bool = True) -> QubitDesignator:
     if (not index) or isinstance(qubit, QubitPlaceholder):
@@ -941,118 +944,95 @@ class RawInstr(AbstractInstruction):
 
 
 class Pulse(AbstractInstruction):
-    def __init__(self, qubits, frame, waveform):
-        self.qubits = qubits
+    def __init__(self, frame, waveform):
         self.frame = frame
         self.waveform = waveform
 
     def out(self):
-        ret = "PULSE "
-        for qubit in self.qubits:
-            ret += f"{qubit} "
-        ret += f'"{self.frame}" {self.waveform.out()}'
-        return ret
+        return f'PULSE {self.frame} {self.waveform.out()}'
 
 
 class SetFrequency(AbstractInstruction):
-    def __init__(self, qubits, frame, freq):
-        self.qubits = qubits
+    def __init__(self, frame, freq):
         self.frame = frame
         self.freq = freq
 
     def out(self):
-        ret = "SET-FREQUENCY"
-        for q in self.qubits:
-            ret += f" {q}"
-        return ret + f' "{self.frame}" {self.freq}'
+        return f'SET-FREQUENCY {self.frame} {self.freq}'
 
 
 class SetPhase(AbstractInstruction):
-    def __init__(self, qubits, frame, phase):
-        self.qubits = qubits
+    def __init__(self, frame, phase):
         self.frame = frame
         self.phase = phase
 
     def out(self):
-        ret = "SET-PHASE"
-        for q in self.qubits:
-            ret += f" {q}"
-        return ret + f" {self.frame} {self.phase}"
+        return f"SET-PHASE {self.frame} {self.phase}"
 
 
 class ShiftPhase(AbstractInstruction):
-    def __init__(self, qubits, frame, phase):
-        self.qubits = qubits
+    def __init__(self, frame, phase):
         self.frame = frame
         self.phase = phase
 
     def out(self):
-        ret = "SHIFT-PHASE "
-        for qubit in self.qubits:
-            ret += f"{qubit} "
-        return ret + f'"{self.frame}" {self.phase}'
+        return f'SHIFT-PHASE {self.frame} {self.phase}'
 
 
 class SwapPhases(AbstractInstruction):
-    def __init__(self, qubitsA, frameA, qubitsB, frameB):
-        self.qubitsA = qubitsA
-        self.qubitsB = qubitsB
+    def __init__(self, frameA, frameB):
         self.frameA = frameA
         self.frameB = frameB
 
     def out(self):
-        ret = "SWAP-PHASES"
-        for q in self.qubitsA:
-            ret += f" {q}"
-        ret += f' "{self.frameA}"'
-        for q in self.qubitsB:
-            ret += f" {q}"
-        return ret + f' "{self.frameB}"'
+        return f"SWAP-PHASES {self.frameA} {self.frameB}"
 
 
 class SetScale(AbstractInstruction):
-    def __init__(self, qubits, frame, scale):
-        self.qubits = qubits
+    def __init__(self, frame, scale):
         self.frame = frame
         self.scale = scale
 
     def out(self):
-        ret = "SET-SCALE"
-        for q in self.qubits:
-            ret += f" {q}"
-        return ret + f' "{self.frame}" {self.scale}'
+        return f'SET-SCALE {self.frame} {self.scale}'
 
 
 class Capture(AbstractInstruction):
-    def __init__(self, qubit, frame, waveform, memory_region):
-        self.qubit = qubit
+    def __init__(self, frame, waveform, memory_region):
         self.frame = frame
         self.waveform = waveform
         self.memory_region = memory_region
 
     def out(self):
-        return f'CAPTURE {self.qubit} "{self.frame}" {self.waveform.out()}' \
+        return f'CAPTURE {self.frame} {self.waveform.out()}' \
             + (' ' + self.memory_region.out() if self.memory_region is not None else '')
 
 
 class RawCapture(AbstractInstruction):
-    def __init__(self, qubit, frame, duration, memory_region):
-        self.qubit = qubit
+    def __init__(self, frame, duration, memory_region):
         self.frame = frame
         self.duration = duration
         self.memory_region = memory_region
 
     def out(self):
-        return f'CAPTURE {self.qubit} "{self.frame}" {self.duration} {self.memory_region.out()}'
+        return f'CAPTURE {self.frame} {self.duration} {self.memory_region.out()}'
 
 
 class Delay(AbstractInstruction):
-    def __init__(self, qubit, duration):
-        self.qubit = qubit
+    def __init__(self, qubits, explicit_frames, duration):
+        self.qubits = qubits
+        self.explicit_frames = explicit_frames if len(explicit_frames) > 0 else None
         self.duration = duration
 
     def out(self):
-        return f"DELAY {self.qubit} {self.duration}"
+        ret = "DELAY"
+        for q in self.qubits:
+            ret += f' {q}'
+        if self.explicit_frames is not None:
+            for f in self.explicit_frames:
+                ret += f' {f}'
+        ret += f' {self.duration}'
+        return ret
 
 
 class Fence(AbstractInstruction):
@@ -1126,3 +1106,17 @@ class DefMeasureCalibration(AbstractInstruction):
         for instr in self.instrs:
             ret += f"    {instr.out()}\n"
         return ret
+
+
+class DefFrame(AbstractInstruction):
+    def __init__(self, frame, options):
+        self.frame = frame
+        self.options = options
+
+    def out(self):
+        r = f"DEFFRAME {self.frame.out()}"
+        if len(self.options) > 0:
+            r += ":"
+            for name, value in self.options.items():
+                r += f"\n    {name}: {value}"
+        return r + "\n"
