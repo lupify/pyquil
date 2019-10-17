@@ -34,7 +34,7 @@ from pyquil.gates import MEASURE, H, RESET
 from pyquil.quilbase import (DefGate, Gate, Measurement, Pragma, AbstractInstruction, Qubit,
                              Jump, Label, JumpConditional, JumpTarget, JumpUnless, JumpWhen,
                              Declare, Halt, Reset, ResetQubit, DefPermutationGate,
-                             DefCalibration, DefMeasureCalibration, DefWaveform)
+                             DefCalibration, DefFrame, DefMeasureCalibration, DefWaveform)
 
 
 class Program(object):
@@ -50,6 +50,7 @@ class Program(object):
         self._defined_gates = []
         self.calibrations = list()
         self.waveforms = dict()
+        self.frames = dict()
         # Implementation note: the key difference between the private _instructions and
         # the public instructions property below is that the private _instructions list
         # may contain placeholder labels.
@@ -82,6 +83,7 @@ class Program(object):
         new_prog.calibrations = self.calibrations.copy()
         new_prog.waveforms = self.waveforms.copy()
         new_prog._defined_gates = self._defined_gates.copy()
+        new_prog.frames = self.frames.copy()
         if self.native_quil_metadata is not None:
             new_prog.native_quil_metadata = self.native_quil_metadata.copy()
         new_prog.num_shots = self.num_shots
@@ -189,6 +191,8 @@ class Program(object):
                 self.calibrations.append(instruction)
             elif isinstance(instruction, DefWaveform):
                 self.waveforms[instruction.name] = instruction
+            elif isinstance(instruction, DefFrame):
+                self.frames[instruction.frame] = instruction.options
             elif isinstance(instruction, AbstractInstruction):
                 self._instructions.append(instruction)
                 self._synthesized_instructions = None
@@ -483,6 +487,9 @@ class Program(object):
         """
         return '\n'.join(itertools.chain(
             (dg.out() for dg in self._defined_gates),
+            (wf.out() for (wf_name, wf) in self.waveforms.items()),
+            ((f"DEFFRAME {f}" if len(attrs) == 0 else
+              f"DEFFRAME {f}:\n    "+"\n    ".join(attrs)) for (f, attrs) in self.frames.items()),
             (cal.out() for cal in self.calibrations),
             (instr.out(allow_placeholders=allow_placeholders) for instr in self.instructions),
             [''],
@@ -495,6 +502,8 @@ class Program(object):
         return '\n'.join(itertools.chain(
             (dg.out() for dg in self._defined_gates),
             (wf.out for (wf_name, wf) in self.waveforms.items()),
+            ((f"DEFFRAME {f}" if len(attrs) == 0 else
+              f"DEFFRAME {f}:\n    " + "\n    ".join(attrs)) for (f, attrs) in self.frames.items()),
             (cal.out() for cal in self.calibrations),
             (instr.out() for instr in self.instructions),
             [''],
@@ -664,6 +673,9 @@ class Program(object):
         """
         return '\n'.join(itertools.chain(
             (str(dg) for dg in self._defined_gates),
+            (wf.out() for (wf_name, wf) in self.waveforms.items()),
+            ((f"DEFFRAME {f}" if len(attrs) == 0 else
+              f"DEFFRAME {f}:\n    " + "\n    ".join(attrs)) for (f, attrs) in self.frames.items()),
             (str(cal) for cal in self.calibrations),
             (str(instr) for instr in self.instructions),
             [''],
@@ -931,6 +943,7 @@ def merge_with_pauli_noise(prog_list: Iterable, probabilities: List, qubits: Lis
     return p
 
 
+# TODO: does this need modification?
 def merge_programs(prog_list):
     """
     Merges a list of pyQuil programs into a single one by appending them in sequence.
