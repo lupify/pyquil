@@ -179,9 +179,8 @@ delay               : DELAY formalQubit+ STRING* expression ;
 fence               : FENCE formalQubit+ ;
 
 formalQubit         : qubit | qubitVariable ;
-namedParam          : colonTerminatedName expression ;
+namedParam          : IDENTIFIER COLON expression ;
 waveform            : name (LPAREN namedParam ( COMMA namedParam )* RPAREN)? ;
-colonTerminatedName : COLONTERMIDENT ;
 frame               : formalQubit+ STRING ;
 
 // built-in waveform types include: "flat", "gaussian", "draggaussian", "erfsquare"
@@ -290,7 +289,6 @@ FORKED              : 'FORKED' ;
 // Identifiers
 
 IDENTIFIER          : ( ( [A-Za-z_] ) | ( [A-Za-z_] [A-Za-z0-9\-_]* [A-Za-z0-9_] ) ) ;
-COLONTERMIDENT      : IDENTIFIER ':' ;
 
 // Numbers
 
