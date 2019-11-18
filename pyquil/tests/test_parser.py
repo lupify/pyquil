@@ -18,10 +18,11 @@ import pytest
 
 from pyquil.gates import *
 from pyquil.parser import parse
-from pyquil.quilatom import MemoryReference, Parameter, quil_cos, quil_sin
-from pyquil.quilbase import Declare, Reset, ResetQubit
-from pyquil.quilbase import Label, JumpTarget, Jump, JumpWhen, JumpUnless, DefGate, DefPermutationGate, Qubit, Pragma, \
-    RawInstr
+from pyquil.quilatom import Addr, MemoryReference, Frame, Waveform, Parameter, quil_cos, quil_sin
+from pyquil.quilbase import (Declare, Reset, ResetQubit, Label, JumpTarget, Jump, JumpWhen, \
+                             JumpUnless, DefGate, DefPermutationGate, Qubit, Pragma, RawInstr, \
+                             Pulse, SetFrequency, SetPhase, ShiftPhase, SwapPhases, SetScale, \
+                             Capture, RawCapture, Delay, Fence)
 from pyquil.tests.utils import parse_equals
 
 
@@ -357,3 +358,13 @@ def test_messy_modifiers():
                  .controlled(1)
                  .dagger()
                  .forked(0, [0.3, 0.4]))
+
+
+def test_parse_pulse():
+    wf = Waveform("flat", {'duration': 1.0, 'iq': 1.0})
+    parse_equals("PULSE 0 \"rf\" flat(duration: 1.0, iq: 1.0)",
+                 Pulse(Frame([Qubit(0)],"rf"), wf))
+    parse_equals("PULSE 0 1 \"ff\" flat(duration: 1.0, iq: 1.0)",
+                 Pulse(Frame([Qubit(0),Qubit(1)], "ff"), wf))
+    parse_equals("NONBLOCKING PULSE 0 \"rf\" flat(duration: 1.0, iq: 1.0)",
+                 Pulse(Frame([Qubit(0)],"rf"), wf, nonblocking=True))
