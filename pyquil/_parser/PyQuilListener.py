@@ -27,7 +27,7 @@ from antlr4.error.Errors import InputMismatchException
 from numpy.ma import sin, cos, sqrt, exp
 
 from pyquil.gates import QUANTUM_GATES
-from pyquil.quilatom import (Addr, MemoryReference, Parameter, Waveform, Frame,
+from pyquil.quilatom import (Addr, MemoryReference, Waveform, Frame, FormalArgument,
                              quil_cos, quil_cis, quil_exp, quil_sin, quil_sqrt)
 from pyquil.parameters import Parameter
 from pyquil.quilbase import (Gate, DefGate, DefPermutationGate, Measurement, JumpTarget, Label, Expression,
@@ -420,7 +420,7 @@ class PyQuilListener(QuilListener):
         self.result = []
 
     def exitDefMeasCalibration(self, ctx:QuilParser.DefMeasCalibrationContext):
-        memory_reference = ctx.name().getText() if ctx.name() is not None else None
+        memory_reference = FormalArgument(ctx.name().getText()) if ctx.name() else None
         qubit = _formal_qubit(ctx.formalQubit())
         instrs = self.result
 
@@ -497,7 +497,7 @@ def _formal_qubit(formal_qubit):
     if isinstance(formal_qubit.qubit(), QuilParser.QubitContext):
         return _qubit(formal_qubit.qubit())
     else:
-        return formal_qubit.getText()
+        return FormalArgument(formal_qubit.getText())
 
 def _qubit(qubit):
     # type: (QuilParser.QubitContext) -> Qubit
