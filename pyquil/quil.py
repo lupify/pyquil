@@ -479,11 +479,9 @@ class Program(object):
         self.num_shots = shots
         return self
 
-    def _out(self, allow_placeholders):
+    def out(self):
         """
-        Converts the Quil program to a readable string.
-
-        :param allow_placeholders: Whether to complain if the program contains placeholders.
+        Serializes the Quil program to a string suitable for submitting to the QVM or QPU.
         """
 
         _wrap = lambda x: f'"{x}"' if isinstance(x, str) else x
@@ -494,15 +492,9 @@ class Program(object):
             ((f"DEFFRAME {f}" if len(attrs) == 0 else
               f"DEFFRAME {f}:\n    " + "\n    ".join(f"{attr}: {_wrap(val)}" for attr, val in attrs.items()) for (f, attrs) in self.frames.items())),
             (cal.out() for cal in self.calibrations),
-            (instr.out(allow_placeholders=allow_placeholders) for instr in self.instructions),
+            (instr.out() for instr in self.instructions),
             [''],
         ))
-
-    def out(self):
-        """
-        Serializes the Quil program to a string suitable for submitting to the QVM or QPU.
-        """
-        return self._out(allow_placeholders=True)
 
     def get_qubits(self, indices=True):
         """
