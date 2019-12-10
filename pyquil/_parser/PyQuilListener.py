@@ -373,9 +373,9 @@ class PyQuilListener(QuilListener):
         args = list(map(lambda x: x.getText(), ctx.pragma_name()))
         if ctx.STRING():
             # [1:-1] is used to strip the quotes from the parsed string
-            self.result.append(Pragma(ctx.IDENTIFIER().getText(), args, ctx.STRING().getText()[1:-1]))
+            self.result.append(Pragma((ctx.IDENTIFIER() or ctx.keyword()).getText(), args, ctx.STRING().getText()[1:-1]))
         else:
-            self.result.append(Pragma(ctx.IDENTIFIER().getText(), args))
+            self.result.append(Pragma((ctx.IDENTIFIER() or ctx.keyword()).getText(), args))
 
     def exitMemoryDescriptor(self, ctx):
         # type: (QuilParser.MemoryDescriptorContext) -> None

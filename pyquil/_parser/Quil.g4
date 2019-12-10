@@ -130,8 +130,8 @@ include             : INCLUDE STRING ;
 
 // M. Pragma Support
 
-pragma              : PRAGMA IDENTIFIER pragma_name* STRING? ;
-pragma_name         : IDENTIFIER | INT ;
+pragma              : PRAGMA ( IDENTIFIER | keyword ) pragma_name* STRING? ;
+pragma_name         : IDENTIFIER | keyword | INT ;
 
 // Expressions (in order of precedence)
 
@@ -190,6 +190,15 @@ frame               : formalQubit+ STRING ;
 ////////////////////
 // LEXER
 ////////////////////
+
+keyword             : DEFGATE | DEFCIRCUIT | MEASURE | LABEL | HALT | JUMP | JUMPWHEN | JUMPUNLESS
+                    | RESET | WAIT | NOP | INCLUDE | PRAGMA | DECLARE | SHARING | OFFSET | AS | MATRIX
+                    | PERMUTATION | NEG | NOT | TRUE | FALSE | AND | IOR | XOR | OR | ADD | SUB | MUL
+                    | DIV | MOVE | EXCHANGE | CONVERT | EQ | GT | GE | LT | LE | LOAD | STORE | PI | I
+                    | SIN | COS | SQRT | EXP | CIS | CAPTURE | DEFCAL | DEFFRAME | DEFWAVEFORM
+                    | DELAY | DIRECTION | FENCE | INITIALFREQUENCY | NONBLOCKING | PULSE | SAMPLERATE
+                    | SETFREQUENCY | SETPHASE | SETSCALE | SHIFTPHASE | SWAPPHASE | RAWCAPTURE
+                    | CONTROLLED | DAGGER | FORKED ;
 
 // Keywords
 

@@ -737,3 +737,12 @@ class QuilListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QuilParser#keyword.
+    def enterKeyword(self, ctx:QuilParser.KeywordContext):
+        pass
+
+    # Exit a parse tree produced by QuilParser#keyword.
+    def exitKeyword(self, ctx:QuilParser.KeywordContext):
+        pass
+
+
