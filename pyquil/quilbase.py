@@ -18,6 +18,7 @@ Contains the core pyQuil objects that correspond to Quil instructions.
 """
 import collections
 import numpy as np
+from numbers import Complex
 from typing import (Any, Callable, ClassVar, Container, Dict, Iterable, List, Optional, Set, Tuple,
                     Union)
 from warnings import warn

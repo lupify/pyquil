@@ -28,8 +28,7 @@ from numpy.ma import sin, cos, sqrt, exp
 
 from pyquil.gates import QUANTUM_GATES
 from pyquil.quilatom import (Addr, MemoryReference, Waveform, Frame, FormalArgument,
-                             quil_cos, quil_cis, quil_exp, quil_sin, quil_sqrt)
-from pyquil.parameters import Parameter
+                             quil_cos, quil_cis, quil_exp, quil_sin, quil_sqrt, Parameter)
 from pyquil.quilbase import (Gate, DefGate, DefPermutationGate, Measurement, JumpTarget, Label, Expression,
                              Nop, Halt, Jump, JumpWhen, JumpUnless, Reset, Wait,
                              ClassicalNot, ClassicalNeg, ClassicalAnd, ClassicalInclusiveOr,
