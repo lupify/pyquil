@@ -1127,5 +1127,7 @@ class DefFrame(AbstractInstruction):
         if len(self.options) > 0:
             r += ":"
             for name, value in self.options.items():
+                if isinstance(value, str):
+                    value = f"\"{value}\""
                 r += f"\n    {name}: {value}"
         return r + "\n"

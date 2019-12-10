@@ -485,11 +485,14 @@ class Program(object):
 
         :param allow_placeholders: Whether to complain if the program contains placeholders.
         """
+
+        _wrap = lambda x: f'"{x}"' if isinstance(x, str) else x
+
         return '\n'.join(itertools.chain(
             (dg.out() for dg in self._defined_gates),
             (wf.out() for (wf_name, wf) in self.waveforms.items()),
             ((f"DEFFRAME {f}" if len(attrs) == 0 else
-              f"DEFFRAME {f}:\n    "+"\n    ".join(attrs)) for (f, attrs) in self.frames.items()),
+              f"DEFFRAME {f}:\n    " + "\n    ".join(f"{attr}: {_wrap(val)}" for attr, val in attrs.items()) for (f, attrs) in self.frames.items())),
             (cal.out() for cal in self.calibrations),
             (instr.out(allow_placeholders=allow_placeholders) for instr in self.instructions),
             [''],
@@ -499,15 +502,7 @@ class Program(object):
         """
         Serializes the Quil program to a string suitable for submitting to the QVM or QPU.
         """
-        return '\n'.join(itertools.chain(
-            (dg.out() for dg in self._defined_gates),
-            (wf.out for (wf_name, wf) in self.waveforms.items()),
-            ((f"DEFFRAME {f}" if len(attrs) == 0 else
-              f"DEFFRAME {f}:\n    " + "\n    ".join(attrs)) for (f, attrs) in self.frames.items()),
-            (cal.out() for cal in self.calibrations),
-            (instr.out() for instr in self.instructions),
-            [''],
-        ))
+        return self._out(allow_placeholders=True)
 
     def get_qubits(self, indices=True):
         """
@@ -671,15 +666,7 @@ class Program(object):
         This may not be suitable for submission to a QPU or QVM for example if
         your program contains unaddressed QubitPlaceholders
         """
-        return '\n'.join(itertools.chain(
-            (str(dg) for dg in self._defined_gates),
-            (wf.out() for (wf_name, wf) in self.waveforms.items()),
-            ((f"DEFFRAME {f}" if len(attrs) == 0 else
-              f"DEFFRAME {f}:\n    " + "\n    ".join(attrs)) for (f, attrs) in self.frames.items()),
-            (str(cal) for cal in self.calibrations),
-            (str(instr) for instr in self.instructions),
-            [''],
-        ))
+        return self.out()
 
 
 def _what_type_of_qubit_does_it_use(program):
