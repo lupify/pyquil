@@ -159,8 +159,8 @@ realN               : FLOAT | INT ;
 // Analog control
 
 defFrame            : DEFFRAME frame ( COLON frameSpec+ )? ;
-frameSpec           : NEWLINE TAB frameAttr COLON expression ;
-frameAttr           : SAMPLERATE | INITIALFREQUENCY ;
+frameSpec           : NEWLINE TAB frameAttr COLON ( expression | STRING ) ;
+frameAttr           : SAMPLERATE | INITIALFREQUENCY | DIRECTION ;
 
 defWaveform         : DEFWAVEFORM name ( LPAREN param (COMMA param)* RPAREN )? realN COLON NEWLINE matrix ;
 defCalibration      : DEFCAL name (LPAREN param ( COMMA param )* RPAREN)? formalQubit+ COLON ( NEWLINE TAB instr )* ;
@@ -269,6 +269,7 @@ DEFCAL              : 'DEFCAL' ;
 DEFFRAME            : 'DEFFRAME' ;
 DEFWAVEFORM         : 'DEFWAVEFORM' ;
 DELAY               : 'DELAY' ;
+DIRECTION           : 'DIRECTION' ;
 FENCE               : 'FENCE' ;
 INITIALFREQUENCY    : 'INITIAL-FREQUENCY' ;
 NONBLOCKING         : 'NONBLOCKING' ;

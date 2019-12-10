@@ -396,8 +396,14 @@ class PyQuilListener(QuilListener):
                                    shared_region=shared_region, offsets=offsets))
 
     def exitDefFrame(self, ctx:QuilParser.DefFrameContext):
+        def _value(item):
+            if item.frameAttr().getText() == 'DIRECTION':
+                return _str_contents(item.STRING().getText())
+            else:
+                return _expression(item.expression())
+
         frame = _frame(ctx.frame())
-        options = {item.frameAttr().getText(): _expression(item.expression()) for item in ctx.frameSpec()}
+        options = {item.frameAttr().getText(): _value(item) for item in ctx.frameSpec()}
         self.result.append(DefFrame(frame, options))
 
     def enterDefCalibration(self, ctx:QuilParser.DefCalibrationContext):
@@ -667,8 +673,11 @@ def _waveform(wf):
     return Waveform(wf.name().getText(), param_dict)
 
 
+def _str_contents(x):
+    return x.strip("\"")
+
 def _frame(frame):
     # type (QuilParser.FrameContext) -> Frame
     qubits = [_formal_qubit(q) for q in frame.formalQubit()]
-    name = frame.STRING().getText().strip("\"")
+    name = _str_contents(frame.STRING().getText())
     return Frame(qubits, name)
