@@ -92,6 +92,10 @@ def _format_params(params: Iterable[ParameterDesignator]) -> str:
     return "(" + ",".join(format_parameter(param) for param in params) + ")"
 
 
+def _join_strings(*args) -> str:
+    return " ".join(map(str, args))
+
+
 class Gate(AbstractInstruction):
     """
     This is the pyQuil object for a quantum gate instruction.
@@ -1029,9 +1033,7 @@ class Delay(AbstractInstruction):
         self.duration = duration
 
     def out(self):
-        ret = "DELAY"
-        for q in self.qubits:
-            ret += f' {q}'
+        ret = "DELAY" + _format_qubits_str(self.qubits)
         if self.explicit_frames is not None:
             for f in self.explicit_frames:
                 ret += f' "{f}"'
@@ -1044,9 +1046,7 @@ class Fence(AbstractInstruction):
         self.qubits = qubits
 
     def out(self):
-        ret = "FENCE"
-        for q in self.qubits:
-            ret += f" {q}"
+        ret = "FENCE " + _format_qubits_str(self.qubits)
         return ret
 
 
@@ -1086,14 +1086,8 @@ class DefCalibration(AbstractInstruction):
     def out(self):
         ret = f"DEFCAL {self.name}"
         if len(self.parameters) > 0:
-            first_param, *rest = self.parameters
-            ret += f"({first_param}"
-            for param in rest:
-                ret += f", {param}"
-            ret += ")"
-        for qubit in self.qubits:
-            ret += f" {qubit}"
-        ret += ":\n"
+            ret += _format_params(self.parameters)
+        ret += " " + _format_qubits_str(self.qubits) + ":\n"
         for instr in self.instrs:
             ret += f"    {instr.out()}\n"
         return ret
