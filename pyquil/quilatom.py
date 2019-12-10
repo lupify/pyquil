@@ -733,6 +733,12 @@ class AffineKernelFamily(QuilAtom):
         self.matrix = matrix
         self.offset = offset
 
+    def __eq__(self, other):
+        return (isinstance(other, AffineKernelFamily) and
+                self.offset == other.offset and
+                self.matrix == other.matrix and
+                self.kernels == other.kernels)
+
     def __hash__(self):
         return hash((self.kernels, self.matrix, self.offset))
 
@@ -745,12 +751,17 @@ class Waveform(QuilAtom):
     Representation of a Waveform reference.
 
     :param name: Name of the waveform definition.
-    :param params: List of numerical parameters to supply to the waveform definition.
+    :param params: Dict of numerical parameters to supply to the waveform definition.
     """
 
     def __init__(self, name, params):
         self.name = name
         self.params = params
+
+    def __eq__(self, other):
+        return (isinstance(other, Waveform) and
+                self.name == other.name and
+                self.params == other.params)
 
     def __hash__(self):
         h = hash(self.name)
