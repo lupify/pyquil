@@ -48,9 +48,9 @@ class Program(object):
     """
     def __init__(self, *instructions):
         self._defined_gates = []
-        self.calibrations = list()
-        self.waveforms = dict()
-        self.frames = dict()
+        self.calibrations = []
+        self.waveforms = {}
+        self.frames = {}
         # Implementation note: the key difference between the private _instructions and
         # the public instructions property below is that the private _instructions list
         # may contain placeholder labels.
@@ -192,7 +192,7 @@ class Program(object):
             elif isinstance(instruction, DefWaveform):
                 self.waveforms[instruction.name] = instruction
             elif isinstance(instruction, DefFrame):
-                self.frames[instruction.frame] = instruction.options
+                self.frames[instruction.frame] = instruction
             elif isinstance(instruction, AbstractInstruction):
                 self._instructions.append(instruction)
                 self._synthesized_instructions = None
@@ -484,13 +484,10 @@ class Program(object):
         Serializes the Quil program to a string suitable for submitting to the QVM or QPU.
         """
 
-        _wrap = lambda x: f'"{x}"' if isinstance(x, str) else x
-
         return '\n'.join(itertools.chain(
             (dg.out() for dg in self._defined_gates),
-            (wf.out() for (wf_name, wf) in self.waveforms.items()),
-            ((f"DEFFRAME {f}" if len(attrs) == 0 else
-              f"DEFFRAME {f}:\n    " + "\n    ".join(f"{attr}: {_wrap(val)}" for attr, val in attrs.items()) for (f, attrs) in self.frames.items())),
+            (wf.out() for wf in self.waveforms.values()),
+            (fdef.out() for fdef in self.frames.values()),
             (cal.out() for cal in self.calibrations),
             (instr.out() for instr in self.instructions),
             [''],
@@ -658,7 +655,14 @@ class Program(object):
         This may not be suitable for submission to a QPU or QVM for example if
         your program contains unaddressed QubitPlaceholders
         """
-        return self.out()
+        return '\n'.join(itertools.chain(
+            (str(dg) for dg in self._defined_gates),
+            (str(wf) for wf in self.waveforms.values()),
+            (str(fdef) for fdef in self.frames.values()),
+            (str(cal) for cal in self.calibrations),
+            (str(instr) for instr in self.instructions),
+            [''],
+        ))
 
 
 def _what_type_of_qubit_does_it_use(program):
