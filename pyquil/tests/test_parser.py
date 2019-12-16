@@ -23,7 +23,7 @@ from pyquil.quilatom import Addr, MemoryReference, Frame, Waveform, Mul, Div, Fo
 from pyquil.quilbase import (Declare, Reset, ResetQubit, Label, JumpTarget, Jump, JumpWhen, \
                              JumpUnless, DefGate, DefPermutationGate, Qubit, Pragma, RawInstr, \
                              Pulse, SetFrequency, SetPhase, ShiftPhase, SwapPhase, SetScale, \
-                             Capture, RawCapture, Delay, Fence,
+                             Capture, RawCapture, DelayQubits, DelayFrames, Fence,
                              DefCalibration, DefMeasureCalibration, DefFrame, DefWaveform)
 from pyquil.tests.utils import parse_equals
 
@@ -422,16 +422,16 @@ def test_parsing_swap_phase():
 
 def test_parsing_delay():
     parse_equals("DELAY 0 1.0",
-                 Delay([Qubit(0)], [], 1.0))
-    # TODO: should this be normalized to a floating point value?
+                 DelayQubits([Qubit(0)], 1.0))
     parse_equals("DELAY 0 1",
-                 Delay([Qubit(0)], [], 1))
+                 DelayQubits([Qubit(0)], 1.0))
     parse_equals("DELAY 0 1 1e-6",
-                 Delay([Qubit(0), Qubit(1)], [], 1e-6))
+                 DelayQubits([Qubit(0), Qubit(1)], 1e-6))
     parse_equals("DELAY 0 \"rf\" 1.0",
-                 Delay([Qubit(0)], ["rf"], 1.0))
+                 DelayFrames([Frame([Qubit(0)], "rf")], 1.0))
     parse_equals("DELAY 0 \"ro_tx\" \"ro_rx\"  1.0",
-                 Delay([Qubit(0)], ["ro_tx", "ro_rx"], 1.0))
+                 DelayFrames([Frame([Qubit(0)], "ro_tx"),
+                              Frame([Qubit(0)], "ro_rx")], 1.0))
 
 
 def test_parsing_defwaveform():

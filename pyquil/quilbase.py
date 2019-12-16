@@ -1026,19 +1026,34 @@ class RawCapture(AbstractInstruction):
         return f'{"NONBLOCKING " if self.nonblocking else ""}RAW-CAPTURE {self.frame} {self.duration} {self.memory_region.out()}'
 
 
-class Delay(AbstractInstruction):
-    def __init__(self, qubits, explicit_frames, duration):
-        self.qubits = qubits
-        self.explicit_frames = explicit_frames if len(explicit_frames) > 0 else None
-        self.duration = duration
+class DelayFrames(AbstractInstruction):
+    def __init__(self, frames, duration):
+
+        # all frames should be on the same qubits
+        if len(frames) == 0:
+            raise ValueError("DELAY expected nonempty list of frames.")
+        if len(set(tuple(f.qubits) for f in frames)) != 1:
+            raise ValueError("DELAY with explicit frames requires all frames are on the same qubits.")
+
+        self.frames = frames
+        self.duration = float(duration)
 
     def out(self):
-        ret = "DELAY" + _format_qubits_str(self.qubits)
-        if self.explicit_frames is not None:
-            for f in self.explicit_frames:
-                ret += f' "{f}"'
+        qubits = self.frames[0].qubits
+        ret = "DELAY " + _format_qubits_str(qubits)
+        for f in self.frames:
+            ret += f' "{f.name}"'
         ret += f' {self.duration}'
         return ret
+
+
+class DelayQubits(AbstractInstruction):
+    def __init__(self, qubits, duration):
+        self.qubits = qubits
+        self.duration = float(duration)
+
+    def out(self):
+        return f"DELAY {_format_qubits_str(self.qubits)} {self.duration}"
 
 
 class Fence(AbstractInstruction):

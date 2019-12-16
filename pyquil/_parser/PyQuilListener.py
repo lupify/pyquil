@@ -44,7 +44,7 @@ from pyquil.quilbase import (Gate, DefGate, DefPermutationGate, Measurement, Jum
                              Pulse, SetFrequency, SetPhase, ShiftPhase, SwapPhase, SetScale,
                              Capture, RawCapture, DefCalibration, DefMeasureCalibration, DefWaveform,
                              DefFrame,
-                             Delay, Fence)
+                             DelayFrames, DelayQubits, Fence)
 from .gen3.QuilLexer import QuilLexer
 from .gen3.QuilListener import QuilListener
 from .gen3.QuilParser import QuilParser
@@ -486,7 +486,11 @@ class PyQuilListener(QuilListener):
         qubits = [_formal_qubit(q) for q in ctx.formalQubit()]
         explicit_frames = [s.getText().strip("\"") for s in ctx.STRING()]
         duration = _expression(ctx.expression())
-        self.result.append(Delay(qubits, explicit_frames, duration))
+        if explicit_frames:
+            delay = DelayFrames([Frame(qubits, name) for name in explicit_frames], duration)
+        else:
+            delay = DelayQubits(qubits, duration)
+        self.result.append(delay)
 
     def exitFence(self, ctx:QuilParser.FenceContext):
         qubits = list(map(_formal_qubit, ctx.formalQubit()))
