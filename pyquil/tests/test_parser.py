@@ -424,7 +424,7 @@ def test_parsing_delay():
     parse_equals("DELAY 0 1.0",
                  DelayQubits([Qubit(0)], 1.0))
     parse_equals("DELAY 0 1",
-                 DelayQubits([Qubit(0)], 1.0))
+                 DelayQubits([Qubit(0)], 1))
     parse_equals("DELAY 0 1 1e-6",
                  DelayQubits([Qubit(0), Qubit(1)], 1e-6))
     parse_equals("DELAY 0 \"rf\" 1.0",

@@ -1036,7 +1036,7 @@ class DelayFrames(AbstractInstruction):
             raise ValueError("DELAY with explicit frames requires all frames are on the same qubits.")
 
         self.frames = frames
-        self.duration = float(duration)
+        self.duration = duration
 
     def out(self):
         qubits = self.frames[0].qubits
@@ -1050,7 +1050,7 @@ class DelayFrames(AbstractInstruction):
 class DelayQubits(AbstractInstruction):
     def __init__(self, qubits, duration):
         self.qubits = qubits
-        self.duration = float(duration)
+        self.duration = duration
 
     def out(self):
         return f"DELAY {_format_qubits_str(self.qubits)} {self.duration}"
